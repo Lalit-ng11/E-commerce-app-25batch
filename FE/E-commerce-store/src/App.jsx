@@ -20,9 +20,11 @@ import Checkout from './pages/Checkout';
 
 // Admin Pages
 import AdminPage from './pages/AdminPage';
+import AdminDashboard from './pages/AdminDashboard';
 import AdminProducts from './pages/AdminProducts';
 import AdminOrders from './pages/AdminOrders';
 import AdminUsers from './pages/AdminUsers';
+import AdminAnalytics from './pages/AdminAnalytics';
 
 
 function App() {
@@ -71,6 +73,11 @@ function App() {
                   {/* Admin Routes */}
                   <Route path="/admin/dashboard" element={
                     <ProtectedRoute requireAdmin={true}>
+                      <AdminDashboard />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin" element={
+                    <ProtectedRoute requireAdmin={true}>
                       <AdminPage />
                     </ProtectedRoute>
                   } />
@@ -87,6 +94,11 @@ function App() {
                   <Route path="/admin/users" element={
                     <ProtectedRoute requireAdmin={true}>
                       <AdminUsers />
+                    </ProtectedRoute>
+                  } />
+                  <Route path="/admin/analytics" element={
+                    <ProtectedRoute requireAdmin={true}>
+                      <AdminAnalytics />
                     </ProtectedRoute>
                   } />
                 </Routes>

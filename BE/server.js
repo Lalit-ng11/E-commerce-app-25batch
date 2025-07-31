@@ -3,27 +3,32 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
 
-// // File Import
-import authRoutes from './routes/authRoutes.js';
-import transactionRoutes from './routes/transactionRoutes.js';
 
+//File import
+import userRoutes from './routes/userRoutes.js';
+import productRoutes from './routes/productRoutes.js';
+import orderRoutes from './routes/orderRoutes.js'
+import cartRoutes from './routes/cartRoutes.js';
+ 
 dotenv.config();
 const app = express();
-app.use(cors());
+app.use(cors({ origin: 'http://localhost:5173' }));
 app.use(express.json());
 
-// Routes 
-app.use('/api/auth' , authRoutes);
-app.use('/api/transactions' , transactionRoutes);
+//Routes
+app.use('/api/users', userRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/cart', cartRoutes);
 
-// DB connection 
+//DB connection
 mongoose.connect(process.env.MONGO_URI)
 .then(()=>{
-    console.log("------MongoDB Connected ...!---------");
-    
+    console.log("---------DB Connected ...!------------");
 })
 .catch((err)=>{
-    console.log(`DB connection Error, ${err}`);
+    console.log(`DB cannot be connected,${err}`);
     
 })
-app.listen(7000);
+
+app.listen(5000);

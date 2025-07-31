@@ -18,12 +18,6 @@ const ProductList = () => {
   const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'title');
   const [sortOrder, setSortOrder] = useState(searchParams.get('sortOrder') || 'asc');
   const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
-  
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalProducts, setTotalProducts] = useState(0);
-  const productsPerPage = 12;
 
   useEffect(() => {
     fetchCategories();
@@ -31,7 +25,7 @@ const ProductList = () => {
 
   useEffect(() => {
     fetchProducts();
-  }, [currentPage, category, minPrice, maxPrice, sortBy, sortOrder, searchTerm]);
+  }, [category, minPrice, maxPrice, sortBy, sortOrder, searchTerm]);
 
   const fetchCategories = async () => {
   try {
@@ -47,20 +41,17 @@ const ProductList = () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
-        page: currentPage,
-        limit: productsPerPage,
         category,
         minPrice,
         maxPrice,
         sortBy,
         sortOrder,
         search: searchTerm,
+        limit: 0, // Get all products
       });
 
-      const response = await axios.get(`http://localhost:5000/api/products/getproducts?${params}`);
-      setProducts(response.data.products);
-      setTotalPages(response.data.totalPages);
-      setTotalProducts(response.data.totalProducts);
+      const response = await axios.get(`http://localhost:5000/api/products/getall?${params}`);
+      setProducts(response.data.products || response.data || []);
     } catch (error) {
       console.error('Error fetching products:', error);
     } finally {
@@ -69,7 +60,6 @@ const ProductList = () => {
   };
 
   const handleFilterChange = (newFilters) => {
-    setCurrentPage(1);
     setSearchParams(newFilters);
   };
 
@@ -109,71 +99,8 @@ const ProductList = () => {
     setSearchTerm('');
     setSortBy('title');
     setSortOrder('asc');
-    setCurrentPage(1);
     setSearchParams({});
   };
-
-  const renderPagination = () => {
-    const pages = [];
-    const startPage = Math.max(1, currentPage - 2);
-    const endPage = Math.min(totalPages, currentPage + 2);
-
-    for (let i = startPage; i <= endPage; i++) {
-      pages.push(
-        <button
-          key={i}
-          className={`btn btn-sm ${currentPage === i ? 'btn-primary' : 'btn-outline-primary'}`}
-          onClick={() => setCurrentPage(i)}
-        >
-          {i}
-        </button>
-      );
-    }
-
-    return (
-      <nav aria-label="Product pagination">
-        <ul className="pagination justify-content-center">
-          <li className="page-item">
-            <button
-              className="btn btn-outline-primary btn-sm"
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </button>
-          </li>
-          {pages.map((page, index) => (
-            <li key={index} className="page-item">
-              {page}
-            </li>
-          ))}
-          <li className="page-item">
-            <button
-              className="btn btn-outline-primary btn-sm"
-              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </button>
-          </li>
-        </ul>
-      </nav>
-    );
-  };
-
-  // if (loading) {
-  //   return (
-  //     <div className="container mt-4">
-  //       <div className="row justify-content-center">
-  //         <div className="col-12 text-center">
-  //           <div className="spinner-border text-primary" role="status">
-  //             <span className="visually-hidden">Loading...</span>
-  //           </div>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
 
   return (
     <div className="container mt-4">
@@ -227,13 +154,21 @@ const ProductList = () => {
       <div className="row mb-3">
         <div className="col-12">
           <p className="text-muted">
-            Showing {products.length} of {totalProducts} products
+            Showing {products.length} products
           </p>
         </div>
       </div>
 
       {/* Products Grid */}
-      {products.length === 0 ? (
+      {loading ? (
+        <div className="row">
+          <div className="col-12 text-center">
+            <div className="spinner-border" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </div>
+      ) : products.length === 0 ? (
         <div className="row">
           <div className="col-12 text-center">
             <div className="alert alert-info">
@@ -250,18 +185,9 @@ const ProductList = () => {
             </div>
           ))}
         </div>
-      )} 
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="row mt-4">
-          <div className="col-12">
-            {renderPagination()}
-          </div>
-        </div>
       )}
     </div>
   );
 };
 
-export default ProductList; 
+export default ProductList;

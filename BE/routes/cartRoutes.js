@@ -5,7 +5,7 @@ import {auth} from '../middleware/auth.js';
 const router = express.Router();
 
 // Get cart
-router.get('/', auth, async (req, res) => {
+router.get('/getcart', auth, async (req, res) => {
   try {
     let cart = await Cart.findOne({ userId: req.user.id });
     if (!cart) cart = new Cart({ userId: req.user.id, items: [] });
@@ -16,7 +16,7 @@ router.get('/', auth, async (req, res) => {
 });
 
 // Add/update item
-router.post('/', auth, async (req, res) => {
+router.post('/addcart', auth, async (req, res) => {
   try {
     const { productId, quantity } = req.body;
     let cart = await Cart.findOne({ userId: req.user.id });
@@ -35,7 +35,7 @@ router.post('/', auth, async (req, res) => {
 });
 
 // Remove item
-router.delete('/:productId', auth, async (req, res) => {
+router.delete('/deletecart/:productId', auth, async (req, res) => {
   try {
     let cart = await Cart.findOne({ userId: req.user.id });
     if (!cart) return res.status(404).json({ message: 'Cart not found' });
